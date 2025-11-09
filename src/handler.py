@@ -47,6 +47,7 @@ def start_llama_server():
     if not model_name:
         raise FileNotFoundError(f"Model not defined")
     
+    os.environ["LLAMA_CACHE"] = f"/app/models/{model_name}"
     cmd = [
         "/app/llama-server",
         "--port", os.getenv("LLAMA_PORT", "1234"),
