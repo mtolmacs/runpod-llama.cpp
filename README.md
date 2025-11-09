@@ -68,9 +68,10 @@ You can run locally for testing:
 ```bash
 # Set environment variables
 export MODEL_NAME="meta-llama/Llama-3.2-1B"
+export MODEL_DOWNLOAD_PATTERNS="<if any>"
+export ADDITIONAL_PARAMETERS="<if any>"
 export PORT=5000
 export LLAMA_PORT=1234
-export GPU_LAYERS=9999
 
 # Run the service
 python src/handler.py

@@ -49,17 +49,17 @@ def start_llama_server():
     
     cmd = [
         "/app/llama-server",
-        "--hf-repo", model_name,
         "--port", os.getenv("LLAMA_PORT", "1234"),
         "--host", "0.0.0.0",
-        "--ctx-size", os.getenv("MAX_CONTEXT", "0"),
-        "--n-gpu-layers", os.getenv("GPU_LAYERS", "9999"),
-        "--parallel", os.getenv("PARALLEL_REQUESTS", "4"),
-        "--jinja",
-        "--cache-type-k", os.getenv("CACHE_TYPE_K", "f16"),
-        "--cache-type-v", os.getenv("CACHE_TYPE_V", "f16"),
-        "--cont-batching",
-        "--flash-attn",
+        os.getenv("ADDITIONAL_PARAMETERS", ""),
+        # "--ctx-size", os.getenv("MAX_CONTEXT", "0"),
+        # "--n-gpu-layers", os.getenv("GPU_LAYERS", "9999"),
+        # "--parallel", os.getenv("PARALLEL_REQUESTS", "4"),
+        # "--jinja",
+        # "--cache-type-k", os.getenv("CACHE_TYPE_K", "f16"),
+        # "--cache-type-v", os.getenv("CACHE_TYPE_V", "f16"),
+        # "--cont-batching",
+        # "--flash-attn",
     ]
     
     print(f"Starting llama.cpp server with command: {' '.join(cmd)}")

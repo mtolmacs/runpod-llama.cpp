@@ -4,13 +4,38 @@
 FROM ghcr.io/ggml-org/llama.cpp:light-cuda AS model-downloader
 
 WORKDIR /app
-# Make sure /build/models exists even if nothing is downloaded
+# Make sure /app/models exists even if nothing is downloaded
 RUN mkdir -p /app/models
 
 # Accept model-related args/envs
 ARG MODEL_NAME
-# Download the model to reuse it in the runtime image
-RUN /app/llama-cli --hf-repo ${MODEL_NAME} -no-cnv -c 10 -n 2 -p "hi"
+ARG MODEL_DOWNLOAD_PATTERNS
+ENV MODEL_NAME=${MODEL_NAME}
+ENV MODEL_DOWNLOAD_PATTERNS=${MODEL_DOWNLOAD_PATTERNS}
+
+# Install Python and pip, then huggingface tooling
+RUN apt-get update && apt-get install -y python3 python3-venv python3-pip \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install --no-cache-dir huggingface_hub hf_transfer
+
+# Download the model using huggingface_hub.snapshot_download into /app/models
+RUN python3 - <<'PY'
+import os
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
+from huggingface_hub import snapshot_download
+repo = os.getenv("MODEL_NAME")
+patterns = os.getenv("MODEL_DOWNLOAD_PATTERNS")
+allow = [patterns] if patterns else None
+if not repo:
+    raise SystemExit("MODEL_NAME must be provided as a build-arg")
+snapshot_download(
+    repo_id=repo,
+    local_dir=f"/app/models/{repo}",
+    allow_patterns=allow,
+)
+PY
 
 # =================================
 # Stage 2: Prepare production image
